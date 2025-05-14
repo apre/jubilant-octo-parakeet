@@ -1,0 +1,24 @@
+meta {
+  name: stared
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://api.github.com/repos/:owner/:repo
+  body: none
+  auth: bearer
+}
+
+params:path {
+  repo: png2c
+  owner: apre
+}
+
+headers {
+  ~Authorization: Bearer {{GITHUB_TOKEN}}
+}
+
+auth:bearer {
+  token: {{GITHUB_TOKEN}}
+}

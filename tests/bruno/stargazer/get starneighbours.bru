@@ -1,0 +1,11 @@
+meta {
+  name: get starneighbours
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{URL}}/repos/{user}/{repo}/starneighbours
+  body: none
+  auth: inherit
+}

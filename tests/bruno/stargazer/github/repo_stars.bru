@@ -1,0 +1,11 @@
+meta {
+  name: repo_stars
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://api.github.com/repos/{owner}/{repo}
+  body: none
+  auth: inherit
+}
