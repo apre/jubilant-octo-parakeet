@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     admin_email: str = "admin@example.com"  # Default value added
     model_config = SettingsConfigDict(env_file=f"{environment}.env", env_file_encoding="utf-8")
     github_account: str = "stargazer"
+    github_key: str = ""
 
 
 settings = Settings()

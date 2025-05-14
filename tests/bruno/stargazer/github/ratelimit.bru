@@ -1,17 +1,13 @@
 meta {
-  name: stared
+  name: ratelimit
   type: http
-  seq: 2
+  seq: 3
 }
 
 get {
-  url: https://api.github.com/users/:owner/starred
+  url: https://api.github.com/rate_limit
   body: none
   auth: bearer
-}
-
-params:path {
-  owner: apre
 }
 
 headers {
