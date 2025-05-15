@@ -3,11 +3,12 @@ import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Load environment variables from dev.env
-#load_dotenv('dev.env')
+# load_dotenv('dev.env')
 
 # Application settings
 app_name = "Stargazer"
 environment = os.getenv("ENVIRONMENT", "dev")
+
 
 class Settings(BaseSettings):
     app_name: str = app_name

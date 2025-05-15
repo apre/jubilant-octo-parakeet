@@ -5,8 +5,7 @@
 First time
 
 ```shell
-conda create -n stargazer python=3.12 fastapi pytest pydantic aiohttp  pydantic-settings pre-commit pycln black flake8 ruff bandit
-
+conda create -n stargazer python=3.11 fastapi pytest pydantic pydantic-settings aiohttp fastcore pytest-asyncio aioresponses pytest-cov
 conda activate stargazer
 
 # create requirement file
