@@ -2,10 +2,11 @@
 
 # boot strap project
 
-First time 
+First time
 
 ```shell
-conda create -n stargazer python=3.11 fastapi pytest pydantic pydantic-settings
+conda create -n stargazer python=3.12 fastapi pytest pydantic aiohttp  pydantic-settings pre-commit pycln black flake8 ruff bandit
+
 conda activate stargazer
 
 # create requirement file

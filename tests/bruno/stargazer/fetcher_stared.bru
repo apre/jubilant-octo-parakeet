@@ -1,0 +1,15 @@
+meta {
+  name: fetcher_stared
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{URL}}/github?path=https://api.github.com/users/apre/starred
+  body: none
+  auth: inherit
+}
+
+params:query {
+  path: https://api.github.com/users/apre/starred
+}
