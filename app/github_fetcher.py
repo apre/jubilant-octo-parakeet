@@ -55,7 +55,7 @@ class GithubFetcher:
         self.logger.info("GithubFetcher initialized")
 
     # @functools.lru_cache(maxsize=100, ttl=120)  # 120 second TTL cache
-    async def get(self, url: str) -> Tuple[Union[Dict[str, Any], str], Dict[str, Any]]:
+    async def get(self, url: str, additionals_headers=[]) -> Tuple[Union[Dict[str, Any], str], Dict[str, Any]]:
         """
         Make a GET request to the GitHub API following best practices.
 
@@ -81,6 +81,9 @@ class GithubFetcher:
 
         # Prepare headers
         headers = {"Accept": "application/vnd.github+json"}
+        for (name, value)  in additionals_headers:
+            headers[name] = value
+
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
 
@@ -277,3 +280,64 @@ class GithubFetcher:
             "seconds_remaining": seconds_remaining,
             "reset_at": datetime.fromtimestamp(cls._rate_limited_until).strftime("%H:%M:%S") if is_limited else None,
         }
+
+    async def fetch_stargazers(self, owner: str, repo: str, limit: Optional[int] = None) -> list[str]:
+        """
+        Fetch stargazer logins using the GitHub GraphQL API.
+
+        Args:
+            owner: Repository owner
+            repo: Repository name
+            limit: Max number of logins to fetch (None = no limit)
+
+        Returns:
+            List of GitHub logins who starred the repo
+        """
+        assert self.token, "GitHub token required for GraphQL API"
+
+        url = "https://api.github.com/graphql"
+        query = """
+        query($owner: String!, $repo: String!, $cursor: String) {
+          repository(owner: $owner, name: $repo) {
+            stargazers(first: 100, after: $cursor) {
+              pageInfo {
+                endCursor
+                hasNextPage
+              }
+              nodes {
+                login
+              }
+            }
+          }
+        }
+        """
+        variables = {"owner": owner, "repo": repo, "cursor": None}
+        logins = []
+
+        async with aiohttp.ClientSession() as session:
+            while True:
+                payload = {"query": query, "variables": variables}
+                headers = {
+                    "Authorization": f"Bearer {self.token}",
+                    "Accept": "application/vnd.github+json",
+                }
+
+                async with session.post(url, json=payload, headers=headers) as response:
+                    if response.status != 200:
+                        raise HTTPException(status_code=response.status, detail=await response.text())
+
+                    json_resp = await response.json()
+                    repo_data = json_resp.get("data", {}).get("repository", {})
+                    stargazers = repo_data.get("stargazers", {})
+                    nodes = stargazers.get("nodes", [])
+                    for node in nodes:
+                        if limit is not None and len(logins) >= limit:
+                            return logins
+                        logins.append(node["login"])
+
+                    page_info = stargazers.get("pageInfo", {})
+                    if not page_info.get("hasNextPage"):
+                        break
+                    variables["cursor"] = page_info["endCursor"]
+
+        return logins

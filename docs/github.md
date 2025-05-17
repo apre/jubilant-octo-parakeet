@@ -4,7 +4,7 @@
 
 ## list stargazers of a repo  0,
 
-
+doc here: https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#list-stargazers
 GET   https://api.github.com/repos/OWNER/REPO/stargazers
 
 curl -L \
@@ -16,7 +16,7 @@ curl -L \
 
 ## list repository stared by a user
 
-https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#list-repositories-starred-by-a-user
+doc here: https://docs.github.com/en/rest/activity/starring?apiVersion=2022-11-28#list-repositories-starred-by-a-user
 
 
 

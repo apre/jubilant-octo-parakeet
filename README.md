@@ -13,6 +13,11 @@ conda list --export > requirements.txt
 
 ```
 
+# design.
+
+- first approach based on simple get on https://api.github.com/repos/{user}/{repo}/stargazers
+- but tenacity repo has 7k stargazers, requiring 233 requests for fetching them all.
+
 
 
 # test it
