@@ -1,0 +1,16 @@
+meta {
+  name: list stargazers of repo
+  type: http
+  seq: 6
+}
+
+get {
+  url: https://api.github.com/repos/:OWNER/:REPO/stargazers
+  body: none
+  auth: inherit
+}
+
+params:path {
+  OWNER: apre
+  REPO: png2c
+}

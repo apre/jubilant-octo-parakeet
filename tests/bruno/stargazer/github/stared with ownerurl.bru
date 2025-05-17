@@ -1,0 +1,23 @@
+meta {
+  name: stared with ownerurl
+  type: http
+  seq: 5
+}
+
+get {
+  url: https://api.github.com/users/:owner/starred
+  body: none
+  auth: bearer
+}
+
+params:path {
+  owner: apre
+}
+
+headers {
+  ~Authorization: Bearer {{GITHUB_TOKEN}}
+}
+
+auth:bearer {
+  token: {{GITHUB_TOKEN}}
+}
