@@ -1,11 +1,16 @@
 meta {
   name: stargazers
   type: http
-  seq: 4
+  seq: 2
 }
 
 get {
-  url: https://github.com/apre/png2c/stargazers
+  url: https://api.github.com/repos/:user/:repo/stargazers
   body: none
   auth: inherit
+}
+
+params:path {
+  repo: jd
+  user: tenacity
 }

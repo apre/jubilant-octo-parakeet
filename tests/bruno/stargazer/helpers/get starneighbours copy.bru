@@ -1,0 +1,15 @@
+meta {
+  name: get starneighbours copy
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{URL}}/:user/starred
+  body: none
+  auth: inherit
+}
+
+params:path {
+  user: CharlesAracil
+}

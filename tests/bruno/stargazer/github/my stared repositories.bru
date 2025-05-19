@@ -5,13 +5,9 @@ meta {
 }
 
 get {
-  url: https://api.github.com/users/:owner/starred
+  url: https://api.github.com/user/starred
   body: none
   auth: bearer
-}
-
-params:path {
-  owner: apre
 }
 
 headers {

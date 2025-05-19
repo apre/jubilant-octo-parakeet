@@ -3,13 +3,25 @@
   <head>
     <meta charset="utf-8">
     <title>Stargazer demo page</title>
-    <link rel="stylesheet" href="static/style.css">
-        <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
     <script src="static/stargazer.js"></script>
   </head>
   <body>
-    <!-- page content -->
+    <div id="content">Loading documentation...</div>
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+      // Fetch README.md content and render it
+      fetch('/README.md')
+        .then(response => response.text())
+        .then(text => {
+          document.getElementById('content').innerHTML = marked.parse(text);
+        })
+        .catch(error => {
+          document.getElementById('content').innerHTML =
+            'Error loading documentation: ' + error.message;
+        });
+    </script>
   </body>
-
 </html>

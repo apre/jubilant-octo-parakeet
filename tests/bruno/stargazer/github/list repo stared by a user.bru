@@ -5,14 +5,13 @@ meta {
 }
 
 get {
-  url: https://api.github.com/repos/:owner/:repo
+  url: https://api.github.com/users/:USERNAME/starred
   body: none
   auth: bearer
 }
 
 params:path {
-  repo: png2c
-  owner: apre
+  USERNAME: apre
 }
 
 headers {

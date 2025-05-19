@@ -1,0 +1,31 @@
+meta {
+  name: stargazers_graphql-next
+  type: http
+  seq: 10
+}
+
+post {
+  url: https://api.github.com/graphql
+  body: json
+  auth: bearer
+}
+
+headers {
+  ~Authorization: Bearer {{GITHUB_TOKEN}}
+}
+
+auth:bearer {
+  token: {{GITHUB_TOKEN}}
+}
+
+body:json {
+  {
+      "query": "query($owner: String!, $repo: String!, $cursor: String) { repository(owner: $owner, name: $repo) { stargazers(first: 100, after: $cursor) { nodes { login } pageInfo { hasNextPage endCursor } } } }",
+      "variables": {
+        "owner": "jd",
+        "repo": "tenacity",
+        "cursor": "Y3Vyc29yOnYyOpK5MjAxNy0wNi0xMlQwNjozMTo0NCswMjowMM4FY2hI"
+
+      }
+    }
+}

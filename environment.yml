@@ -1,0 +1,16 @@
+name: stargazer
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - aiohttp
+  - aioresponses
+  - fastapi
+  - fastcore
+  - pydantic
+  - pydantic-settings
+  - pytest
+  - pytest-asyncio
+  - pytest-cov
+  - pre-commit
+  - python=3.12

@@ -1,0 +1,47 @@
+
+@font-face {
+  /* thank you https://lehollandaisvolant.net/?d=2015/11/16/21/09/37-css-optimiser-le-chargement-des-polices-pour-le-web*/
+  font-family: "roboto";
+  font-style: normal;
+  font-weight: 400;
+  src: local("roboto"), local("roboto-regular"), url("roboto.woff") format("woff");
+}
+
+body {
+  line-height: 1.6;
+  color: #222;
+  max-width: 40rem;
+  padding: 2rem;
+  margin: auto;
+  background-color: #e7f3fc;
+  text-align: justify;
+  text-justify: inter-word;
+}
+img {
+  max-width: 100%;
+  height: auto;
+}
+a {
+  color: #2ECC40;
+}
+h1, h2, strong {
+  color: #111;
+}
+
+p {
+
+}
+
+.center { text-align: center }
+
+
+
+#mapid{
+ position: relative;
+ /*bottom:0;*/
+  /*top: 0;*/
+ /* left: 0;*/
+  width: 90%;
+ /* width: 600px;*/
+  height: 200px;
+}

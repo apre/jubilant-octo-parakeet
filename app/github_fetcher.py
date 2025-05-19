@@ -1,7 +1,17 @@
+"""GithubFetcher: frontend to github apis, trying to respect API endpoint limitations.
+- honor the caching
+- tries to honor timing, should work in mono-processes
+- preliminary paging support
+
+Some code in this file have been written using AI
+
+
+"""
 import asyncio
 import logging
 import time
 from datetime import datetime
+from http import HTTPStatus
 from typing import Any, Dict, NamedTuple, Optional, Tuple, Union
 
 import aiohttp
@@ -21,7 +31,6 @@ class CacheEntry(NamedTuple):
 
 
 class GithubFetcher:
-    # Class-level variables for global rate limit state
     _rate_limited_until = 0  # Timestamp when rate limit expires
     _rate_limit_lock = None  # Class-level lock for rate limit state
     _test_mode = False  # When True, skips actual sleeping for tests
@@ -54,10 +63,9 @@ class GithubFetcher:
         self.logger = setup_logger("github_fetcher", log_level)
         self.logger.info("GithubFetcher initialized")
 
-    # @functools.lru_cache(maxsize=100, ttl=120)  # 120 second TTL cache
     async def get(self, url: str, additionals_headers=[]) -> Tuple[Union[Dict[str, Any], str], Dict[str, Any]]:
         """
-        Make a GET request to the GitHub API following best practices.
+        Make a GET request to the GitHub API, trying to follow best practices.
 
         Args:
             url: The API endpoint path (will be appended to base_url if not a full URL)
@@ -121,10 +129,10 @@ class GithubFetcher:
     ) -> Tuple[Union[Dict[str, Any], str], Dict[str, Any]]:
         """Internal method to make the actual request with retry logic"""
         # Prevent infinite recursion
-        if retry_count >= 3:  # Max 3 retries
+        if retry_count >= 2:  # Max 2 retries
             self.logger.warning(f"Maximum retry count reached for {url}")
             raise HTTPException(
-                status_code=429,
+                status_code=HTTPStatus.TOO_MANY_REQUESTS,
                 detail="Maximum retry count reached"
             )
 
@@ -135,7 +143,7 @@ class GithubFetcher:
                     self.logger.debug(f"Received response from {url}: status={response.status}")
 
                     # Handle 304 Not Modified (conditional request hit)
-                    if response.status == 304 and url in self._cache:
+                    if response.status == HTTPStatus.NOT_MODIFIED and url in self._cache:
                         self.logger.info(f"304 Not Modified for {url}, using cached response")
                         cache_entry = self._cache[url]
                         # Update cache timestamp
@@ -165,7 +173,7 @@ class GithubFetcher:
                     }
 
                     # Handle rate limiting
-                    if response.status in (403, 429):
+                    if response.status in (HTTPStatus.FORBIDDEN, HTTPStatus.TOO_MANY_REQUESTS):
                         self.logger.warning(f"Rate limit hit for {url}: status={response.status}")
                         retry_after = await self._handle_rate_limit(response_headers)
                         if retry_after > 0:
@@ -180,7 +188,7 @@ class GithubFetcher:
                             return await self._make_request(url, headers, retry_count + 1)
 
                     # Handle redirects (should be automatic with aiohttp, but just in case)
-                    if response.status in (301, 302, 307):
+                    if response.status in (HTTPStatus.MOVED_PERMANENTLY, HTTPStatus.FOUND, HTTPStatus.TEMPORARY_REDIRECT):
                         new_url = response_headers.get("Location")
                         # print new location in logs
                         self.logger.info(f"Redirecting {url} to {new_url}")
@@ -201,8 +209,7 @@ class GithubFetcher:
                             timestamp=time.time(),
                         )
 
-                    # Handle errors
-                    if not 200 <= response.status < 300:
+                    else: # Handle errors
                         self.logger.error(f"Error response from {url}: status={response.status}")
                         raise HTTPException(
                             status_code=response.status, detail=f"GitHub API error: {data}"
@@ -213,7 +220,7 @@ class GithubFetcher:
             self.logger.error(f"Exception during request to {url}: {str(e)}")
             if isinstance(e, HTTPException):
                 raise
-            raise HTTPException(status_code=500, detail=f"Error fetching from GitHub: {str(e)}")
+            raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail=f"Error fetching from GitHub: {str(e)}")
 
     async def _handle_rate_limit(self, headers: Dict[str, str]) -> float:
         """
@@ -280,64 +287,3 @@ class GithubFetcher:
             "seconds_remaining": seconds_remaining,
             "reset_at": datetime.fromtimestamp(cls._rate_limited_until).strftime("%H:%M:%S") if is_limited else None,
         }
-
-    async def fetch_stargazers(self, owner: str, repo: str, limit: Optional[int] = None) -> list[str]:
-        """
-        Fetch stargazer logins using the GitHub GraphQL API.
-
-        Args:
-            owner: Repository owner
-            repo: Repository name
-            limit: Max number of logins to fetch (None = no limit)
-
-        Returns:
-            List of GitHub logins who starred the repo
-        """
-        assert self.token, "GitHub token required for GraphQL API"
-
-        url = "https://api.github.com/graphql"
-        query = """
-        query($owner: String!, $repo: String!, $cursor: String) {
-          repository(owner: $owner, name: $repo) {
-            stargazers(first: 100, after: $cursor) {
-              pageInfo {
-                endCursor
-                hasNextPage
-              }
-              nodes {
-                login
-              }
-            }
-          }
-        }
-        """
-        variables = {"owner": owner, "repo": repo, "cursor": None}
-        logins = []
-
-        async with aiohttp.ClientSession() as session:
-            while True:
-                payload = {"query": query, "variables": variables}
-                headers = {
-                    "Authorization": f"Bearer {self.token}",
-                    "Accept": "application/vnd.github+json",
-                }
-
-                async with session.post(url, json=payload, headers=headers) as response:
-                    if response.status != 200:
-                        raise HTTPException(status_code=response.status, detail=await response.text())
-
-                    json_resp = await response.json()
-                    repo_data = json_resp.get("data", {}).get("repository", {})
-                    stargazers = repo_data.get("stargazers", {})
-                    nodes = stargazers.get("nodes", [])
-                    for node in nodes:
-                        if limit is not None and len(logins) >= limit:
-                            return logins
-                        logins.append(node["login"])
-
-                    page_info = stargazers.get("pageInfo", {})
-                    if not page_info.get("hasNextPage"):
-                        break
-                    variables["cursor"] = page_info["endCursor"]
-
-        return logins

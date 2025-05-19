@@ -78,7 +78,9 @@ async def test_cache_mechanism(mock_api):
 
 @pytest.mark.asyncio
 async def test_rate_limiting():
-    """Test the rate limiting status mechanism"""
+    """Test the rate limiting status mechanism
+    AI generated, not verified by human
+    """
     # Reset rate limiting state
     GithubFetcher._rate_limited_until = 0
 
@@ -101,7 +103,10 @@ async def test_rate_limiting():
 
 @pytest.mark.asyncio
 async def test_not_modified_response(mock_api):
-    """Test handling 304 Not Modified responses"""
+    """Test handling 304 Not Modified responses
+        AI generated, not verified by human
+
+    """
     url = "https://api.fake.com/repos/octocat/hello-world"
     etag = "W/\"12345abcdef\""
 
@@ -140,7 +145,10 @@ async def test_not_modified_response(mock_api):
 
 @pytest.mark.asyncio
 async def test_manual_cache_clearing(mock_api):
-    """Test manually clearing the cache"""
+    """Test manually clearing the cache
+        AI generated, not verified by human
+
+    """
     url = "https://api.fake.com/user"
 
     # Setup response
