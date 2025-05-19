@@ -8,7 +8,7 @@ def setup_logger(
     formatter: Optional[logging.Formatter] = None,
     propagate: bool = True,
 ) -> logging.Logger:
-    """
+    """AI generated setup logger function
     Set up and return a logger with consistent configuration.
 
     Args:

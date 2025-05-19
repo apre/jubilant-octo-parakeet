@@ -5,6 +5,7 @@
 - no paging against github API, could have been way better
   - it must be implemented to cover repositories with 30+ stars or 30+ stargazers
 - GithubFetcher test coverage could be largely improved
+- part of code generated with help of AI tools have been explicitely marked in the docstrings.
 
 ## thing I wish I could add
 - a [viz.js](https://visjs.github.io/vis-network/examples/network/basicUsage.html) based visualization of the repositories
@@ -37,3 +38,5 @@ fastapi dev app/main.py
 [Bruno](https://www.usebruno.com/) can be used to test the api.
 - You will need to feed the `GITHUB_TOKEN` in the `dev` environment.
 - Bruno config files are in `tests/bruno` directory.
+
+You can run pytest too.

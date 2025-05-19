@@ -15,12 +15,10 @@ app = FastAPI(
     title='stargazer application',
     version='0.9.0',
 )
-# Mount static files directory
-# Mount project root to serve README.md
-#app.mount("/", StaticFiles(directory=str(PROJECT_ROOT)), name="root")
 
 app.include_router(starneighbours.router)
 if settings.environment == "dev":
+    # in case of dev environment, add some more routes (to help testing)
     app.include_router(rotten.router)
     app.mount("/static", StaticFiles(directory="static", html=True), name="static")
     logger.info("including rotten stufs")
